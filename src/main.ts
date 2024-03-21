@@ -4,16 +4,21 @@ import OpenAI from "openai";
 import { Octokit } from "@octokit/rest";
 import parseDiff, { Chunk, File } from "parse-diff";
 import minimatch from "minimatch";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GITHUB_TOKEN: string = core.getInput("GITHUB_TOKEN");
 const OPENAI_API_KEY: string = core.getInput("OPENAI_API_KEY");
 const OPENAI_API_MODEL: string = core.getInput("OPENAI_API_MODEL");
+const GEMINI_API_KEY: string = core.getInput("GEMINI_API_KEY");
+const GEMINI_MODEL: string = core.getInput("GEMINI_MODEL");
 
 const octokit = new Octokit({ auth: GITHUB_TOKEN });
 
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
+
+const gemini = new GoogleGenerativeAI(GEMINI_API_KEY)
 
 interface PRDetails {
   owner: string;
@@ -66,7 +71,7 @@ async function analyzeCode(
     if (file.to === "/dev/null") continue; // Ignore deleted files
     for (const chunk of file.chunks) {
       const prompt = createPrompt(file, chunk, prDetails);
-      const aiResponse = await getAIResponse(prompt);
+      const aiResponse = await getGeminiResponse(prompt);
       if (aiResponse) {
         const newComments = createComment(file, chunk, aiResponse);
         if (newComments) {
@@ -143,6 +148,34 @@ async function getAIResponse(prompt: string): Promise<Array<{
   } catch (error) {
     console.error("Error:", error);
     return null;
+  }
+}
+
+async function getGeminiResponse(prompt: string): Promise<Array<{
+  lineNumber: string;
+  reviewComment: string;
+}> | null> {
+  const modelParams = {
+    model: GEMINI_MODEL,
+    generationConfig: {
+      temperature: 0.2,
+      topP: 1,
+    }
+  }
+
+  try {
+    const response = (await gemini.getGenerativeModel(modelParams).generateContent({
+      contents: [{
+        role: "model",
+        parts: [{text: prompt}]
+      }]
+    })).response
+
+    const res = response.text().trim()
+    return JSON.parse(res).reviews;
+  } catch (error) {
+    console.error("Error:", error);
+    return null
   }
 }
 
