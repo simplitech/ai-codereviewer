@@ -179,6 +179,7 @@ function getGeminiResponse(prompt) {
         try {
             const response = (yield gemini.getGenerativeModel(modelParams).generateContent(prompt)).response;
             const res = response.text().trim();
+            console.log(res);
             return JSON.parse(res).reviews;
         }
         catch (error) {
