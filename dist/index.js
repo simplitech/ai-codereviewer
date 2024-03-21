@@ -177,12 +177,7 @@ function getGeminiResponse(prompt) {
             }
         };
         try {
-            const response = (yield gemini.getGenerativeModel(modelParams).generateContent({
-                contents: [{
-                        role: "model",
-                        parts: [{ text: prompt }]
-                    }]
-            })).response;
+            const response = (yield gemini.getGenerativeModel(modelParams).generateContent(prompt)).response;
             const res = response.text().trim();
             return JSON.parse(res).reviews;
         }
