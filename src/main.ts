@@ -164,7 +164,12 @@ async function getGeminiResponse(prompt: string): Promise<Array<{
   }
 
   try {
-    const response = (await gemini.getGenerativeModel(modelParams).generateContent(prompt)).response
+    const response = (await gemini.getGenerativeModel(modelParams).generateContent({
+      contents: [{
+        role: "user",
+        parts: [{text: prompt}]
+      }]
+    })).response
 
     const res = response.text().trim()
     return JSON.parse(res).reviews;
