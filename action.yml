@@ -11,6 +11,13 @@ inputs:
     description: "OpenAI API model."
     required: false
     default: "gpt-4"
+  GEMINI_API_KEY:
+    description: "Gemin API key."
+    required: true
+  GEMINI_MODEL:
+    description: "Gemini model"
+    required: false
+    default: "gemini-pro"
   exclude:
     description: "Glob patterns to exclude files from the diff analysis"
     required: false
