@@ -177,8 +177,11 @@ function getGeminiResponse(prompt) {
             }
         };
         try {
+            console.log("Prompt:\n");
+            console.log(prompt);
             const response = (yield gemini.getGenerativeModel(modelParams).generateContent(prompt)).response;
             const res = response.text().trim();
+            console.log("Resp:\n");
             console.log(res);
             return JSON.parse(res).reviews;
         }
@@ -214,9 +217,14 @@ function createReviewComment(owner, repo, pull_number, comments) {
 function main() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        console.log("Getting PR details...");
         const prDetails = yield getPRDetails();
+        console.log(prDetails);
         let diff;
+        console.log("Getting event data...");
         const eventData = JSON.parse((0, fs_1.readFileSync)((_a = process.env.GITHUB_EVENT_PATH) !== null && _a !== void 0 ? _a : "", "utf8"));
+        console.log(eventData);
+        console.log("Getting diff...");
         if (eventData.action === "opened") {
             diff = yield getDiff(prDetails.owner, prDetails.repo, prDetails.pull_number);
         }
@@ -238,6 +246,7 @@ function main() {
             console.log("Unsupported event:", process.env.GITHUB_EVENT_NAME);
             return;
         }
+        console.log(diff);
         if (!diff) {
             console.log("No diff found");
             return;
