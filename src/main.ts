@@ -216,12 +216,17 @@ async function createReviewComment(
 }
 
 async function main() {
+  console.log("Getting PR details...")
   const prDetails = await getPRDetails();
+  console.log(prDetails)
   let diff: string | null;
+  console.log("Getting event data...")
   const eventData = JSON.parse(
     readFileSync(process.env.GITHUB_EVENT_PATH ?? "", "utf8")
   );
+  console.log(eventData)
 
+  console.log("Getting diff...")
   if (eventData.action === "opened") {
     diff = await getDiff(
       prDetails.owner,
@@ -247,6 +252,7 @@ async function main() {
     console.log("Unsupported event:", process.env.GITHUB_EVENT_NAME);
     return;
   }
+  console.log(diff)
 
   if (!diff) {
     console.log("No diff found");
