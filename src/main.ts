@@ -164,9 +164,13 @@ async function getGeminiResponse(prompt: string): Promise<Array<{
   }
 
   try {
+    console.log("Prompt:\n")
+    console.log(prompt)
+
     const response = (await gemini.getGenerativeModel(modelParams).generateContent(prompt)).response
 
     const res = response.text().trim()
+    console.log("Resp:\n")
     console.log(res)
 
     return JSON.parse(res).reviews;
